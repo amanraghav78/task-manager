@@ -1,10 +1,14 @@
 package com.example.task_manager.services;
 
 import com.example.task_manager.entities.Task;
+import com.example.task_manager.entities.TaskPriority;
+import com.example.task_manager.entities.TaskStatus;
 import com.example.task_manager.repositories.TaskRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -28,6 +32,18 @@ public class TaskService {
 
     public Optional<Task> getTaskById(Long id){
         return taskRepository.findById(id);
+    }
+
+    public List<Task> getTasksByStatus(TaskStatus status){
+        return taskRepository.findByStatus(status);
+    }
+
+    public List<Task> getTasksByPriority(TaskPriority priority){
+        return taskRepository.findByPriority(priority);
+    }
+
+    public List<Task> getTasksByStatusAndPriority(TaskStatus status, TaskPriority priority){
+        return taskRepository.findByStatusAndPriority(status, priority);
     }
 
     public Task updateTask(Long id, Task updatedTask){

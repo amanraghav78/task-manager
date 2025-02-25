@@ -1,6 +1,8 @@
 package com.example.task_manager.controllers;
 
 import com.example.task_manager.entities.Task;
+import com.example.task_manager.entities.TaskPriority;
+import com.example.task_manager.entities.TaskStatus;
 import com.example.task_manager.services.TaskService;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.query.sqm.mutation.internal.TableKeyExpressionCollector;
@@ -49,5 +51,18 @@ public class TaskController {
     public ResponseEntity<Void> deleteTask(@PathVariable Long id){
         taskService.deleteTask(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/filter")
+    public List<Task> filterTasks(@RequestParam(required = false)TaskStatus status, @RequestParam(required = false)TaskPriority priority){
+        if(status != null && priority != null){
+            return taskService.getTasksByStatusAndPriority(status, priority);
+        } else if(status != null){
+            return taskService.getTasksByStatus(status);
+        } else if(priority != null){
+            return taskService.getTasksByPriority(priority);
+        } else {
+            return taskService.getAllTasks();
+        }
     }
 }
