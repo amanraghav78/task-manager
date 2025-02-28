@@ -65,4 +65,12 @@ public class TaskController {
             return taskService.getAllTasks();
         }
     }
+
+    @PutMapping("/{taskId}/status")
+    public ResponseEntity<Task> updateStatus(@PathVariable Long taskId, @RequestParam TaskStatus status) throws Exception {
+        Task updatedTask = taskService.updateTaskStatus(taskId, status);
+        return ResponseEntity.ok(updatedTask);
+
+
+    }
 }

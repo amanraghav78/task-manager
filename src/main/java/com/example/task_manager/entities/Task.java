@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.cglib.core.Local;
 
 import java.time.LocalDateTime;
+import java.util.concurrent.RecursiveTask;
 
 @Entity
 @NoArgsConstructor
@@ -26,7 +27,7 @@ public class Task {
     private String description;
 
     @Enumerated(EnumType.STRING)
-    private TaskStatus status;
+    private TaskStatus status= TaskStatus.TODO;
 
     @Enumerated(EnumType.STRING)
     private TaskPriority priority;
@@ -36,6 +37,16 @@ public class Task {
     private LocalDateTime updatedAt;
 
     private LocalDateTime dueDate;
+
+    private Integer orderIndex;
+
+    public Integer getOrderIndex(){
+        return orderIndex;
+    }
+
+    public void setOrderIndex(Integer orderIndex){
+        this.orderIndex= orderIndex;
+    }
 
     public LocalDateTime getDueDate() {
         return dueDate;
