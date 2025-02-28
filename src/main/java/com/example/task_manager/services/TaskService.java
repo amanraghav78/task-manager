@@ -4,23 +4,35 @@ import com.example.task_manager.entities.Task;
 import com.example.task_manager.entities.TaskPriority;
 import com.example.task_manager.entities.TaskStatus;
 import com.example.task_manager.repositories.TaskRepository;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 //@RequiredArgsConstructor
 public class TaskService {
 
     private final TaskRepository taskRepository;
+    private final RedisTemplate<String, Objects> redisTemplate;
 
-    public TaskService(TaskRepository taskRepository){
+    public static final String TASKS_CACHE = "tasks";
+    public TaskService(TaskRepository taskRepository, RedisTemplate<String, Objects> redisTemplate){
         this.taskRepository= taskRepository;
+        this.redisTemplate = redisTemplate;
     }
 
+    @CachePut(value = TASKS_CACHE, key = "#task.id")
+    @CacheEvict(value = TASKS_CACHE, key = "'groupedByStatus'")
     public Task updateTaskStatus(Long taskId, TaskStatus newStatus) throws Exception {
         Task task = taskRepository.findById(taskId).
                 orElseThrow(()-> new Exception());
@@ -49,10 +61,12 @@ public class TaskService {
         return taskRepository.save(task);
     }
 
+    @Cacheable(value = TASKS_CACHE, key = "'alltasks'")
     public List<Task> getAllTasks(){
         return taskRepository.findAll();
     }
 
+    @Cacheable(value = TASKS_CACHE, key = "#taskId")
     public Optional<Task> getTaskById(Long id){
         return taskRepository.findById(id);
     }
@@ -69,6 +83,7 @@ public class TaskService {
         return taskRepository.findByStatusAndPriority(status, priority);
     }
 
+    @CachePut(value = TASKS_CACHE, key = "#task.id")
     public Task updateTask(Long id, Task updatedTask){
         return taskRepository.findById(id).map( task -> {
             task.setTitle(updatedTask.getTitle());
@@ -80,7 +95,14 @@ public class TaskService {
         ).orElseThrow(() -> new RuntimeException("Task not found with id: " + id));
     }
 
+    @CacheEvict(value = TASKS_CACHE, allEntries = true)
     public void deleteTask(Long id){
         taskRepository.deleteById(id);
+    }
+
+    @Cacheable(value = TASKS_CACHE, key = "'groupedByStatus'")
+    public Map<TaskStatus, List<Task>> getTasksGroupedByStatus(){
+        List<Task> tasks = getAllTasks();
+        return tasks.stream().collect(Collectors.groupingBy(Task::getStatus));
     }
 }
