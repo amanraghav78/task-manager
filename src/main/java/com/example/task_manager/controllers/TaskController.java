@@ -70,7 +70,10 @@ public class TaskController {
     public ResponseEntity<Task> updateStatus(@PathVariable Long taskId, @RequestParam TaskStatus status) throws Exception {
         Task updatedTask = taskService.updateTaskStatus(taskId, status);
         return ResponseEntity.ok(updatedTask);
+    }
 
-
+    @PostMapping("/{taskId}/attach-file")
+    public ResponseEntity<Task> attachFileToTask(@PathVariable Long taskId, @RequestParam("file") String fileUrl){
+        return ResponseEntity.ok(taskService.attachFileToTask(taskId, fileUrl));
     }
 }

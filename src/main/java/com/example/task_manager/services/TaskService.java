@@ -57,6 +57,14 @@ public class TaskService {
         }
     }
 
+    public Task attachFileToTask(Long taskId, String fileUrl){
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new RuntimeException("Task not found"));
+
+        task.setFileUrl(fileUrl);
+        return taskRepository.save(task);
+    }
+
     public Task createTask(Task task){
         return taskRepository.save(task);
     }
